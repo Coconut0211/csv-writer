@@ -77,7 +77,7 @@ proc genStudents(csvFileName: string, rowsCount: int) =
   var rows: seq[seq[string]]
   for i in 1 .. rowsCount:
     rows.add(@[randName(),getData("src" / "last_names.txt")[rand(0..999)],genRandDate(1..28,1..12,2005..2018),$rand(1..11),letters[rand(0..6)]])
-  genCSV("firstName,lastName,birthDate,subject,classNum,classLet",rows,csvFileName) 
+  genCSV("firstName,lastName,birthDate,classNum,classLet",rows,csvFileName) 
 
 when isMainModule:
   var rowsCount = 0  # Сколько строк писать
