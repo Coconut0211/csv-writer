@@ -58,16 +58,20 @@ proc genCSV(
   var file: File = open(csvFileName,fmWrite)
   file.writeLine(header)
   for item in rows:
-    file.writeLine(join(item,","))
+    file.writeLine(join(item.mapIt(join(@[""""""",it,"""""""])),","))
   file.close()
   ## Вносит заголовок и строки в csvFileName
   ## если значения не переданы, то должны использоваться значения по умолчанию
 
 proc genManagers(csvFileName: string, rowsCount: int) =
-  let posts = @["Директор", "Бухгалтер", "Ветеринар","Главный Директор", "Главный Бухгалтер", "Главный Ветеринар"]
+  let roles = Role.toSeq()[1 .. ^1]
+  var currentRole: string
   var rows: seq[seq[string]]
   for i in 1 .. rowsCount:
-    rows.add(@[randName(),getData("src" / "last_names.txt")[rand(0..999)],genRandDate(),posts[rand(0..5)]])
+    currentRole  = $roles[rand(0..2)]
+    if i < 4:
+      currentRole = join(@["Главный ", $roles[i - 1]])
+    rows.add(@[randName(),getData("src" / "last_names.txt")[rand(0..999)],genRandDate(),currentRole])
   genCSV("firstName,lastName,birthDate,post",rows,csvFileName)
 
 proc genStaff(csvFileName: string, rowsCount: int) =

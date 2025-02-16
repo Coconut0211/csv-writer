@@ -54,7 +54,7 @@ proc genCSV(
   var file: File = open(csvFileName,fmWrite)
   file.writeLine(header)
   for item in rows:
-    file.writeLine(join(item,","))
+    file.writeLine(join(item.mapIt(join(@[""""""",it,"""""""])),","))
   file.close()
   ## Вносит заголовок и строки в csvFileName
   ## если значения не переданы, то должны использоваться значения по умолчанию
@@ -66,10 +66,9 @@ proc genDirector(csvFileName: string, rowsCount: int) =
   genCSV("firstName,lastName,birthDate",rows,csvFileName)
 
 proc genTeachers(csvFileName: string, rowsCount: int) =
-  let subjects = @["История", "География", "Математика", "Биология"]
   var rows: seq[seq[string]]
   for i in 1 .. rowsCount:
-    rows.add(@[randName(),getData("src" / "last_names.txt")[rand(0..999)],genRandDate(),subjects[rand(0..3)]])
+    rows.add(@[randName(),getData("src" / "last_names.txt")[rand(0..999)],genRandDate(),$Subjects.toSeq()[1 .. ^1][rand(0..3)]])
   genCSV("firstName,lastName,birthDate,subject",rows,csvFileName) 
 
 proc genStudents(csvFileName: string, rowsCount: int) =

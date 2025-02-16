@@ -63,17 +63,16 @@ proc genCSV(
   var file: File = open(csvFileName,fmWrite)
   file.writeLine(header)
   for item in rows:
-    file.writeLine(join(item,","))
+    file.writeLine(join(item.mapIt(join(@[""""""",it,"""""""])),","))
   file.close()
   ## Вносит заголовок и строки в csvFileName
   ## если значения не переданы, то должны использоваться значения по умолчанию
 
 proc genStaff(csvFileName: string, rowsCount: int) =
   ## Функция генерации сотрудников
-  let posts = @["Кассир", "Уборщик", "Консультант", "Менеджер", "Директор"]
   var rows: seq[seq[string]]
   for i in 1 .. rowsCount:
-    rows.add(@[randName(),getData("src" / "last_names.txt")[rand(0..999)],genRandDate(),posts[rand(0..4)]])
+    rows.add(@[randName(),getData("src" / "last_names.txt")[rand(0..999)],genRandDate(),$Post.toSeq()[1 .. ^1][rand(0..4)]])
   genCSV("firstName,lastName,birthDate,post",rows,csvFileName)
 
 proc genGoods(csvFileName: string, rowsCount: int) =
@@ -87,7 +86,7 @@ proc genCashes(csvFileName: string, rowsCount: int) =
   ## Функция генерации касс
   var rows: seq[seq[string]]
   for i in 1 .. rowsCount:
-    rows.add(@[$rand(1..10),$rand(0..1),$rand(1..5000)])
+    rows.add(@[$i,$rand(0..1),$rand(1..5000)])
   genCSV("number,free,totalCash",rows,csvFileName) 
 
 when isMainModule:
