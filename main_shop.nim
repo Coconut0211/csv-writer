@@ -5,8 +5,31 @@ import random  # для генерации случайных чисел
 randomize()  # Для рандомизации генератора
 
 type
-  Post = enum  # Возьмите вашу заготовку из задачи types_2
-    NONE,      # Либо подключите её сюда напрямую, используя import
+  Post* = enum
+    NONE, Кассир, Уборщик, Консультант, Менеджер, Директор
+
+  Staff* = ref object of RootObj
+    firstName*: string
+    lastName*: string
+    birthDate*: int64
+    post*: Post
+
+  Good* = ref object of RootObj
+    title*: string
+    price*: float
+    endDate*: int64
+    discount*: float
+    count*: int
+
+  Cash* = ref object of RootObj
+    number*: int
+    free*: bool
+    totalCash*: float
+
+  Shop* = ref object of RootObj
+    staff*: seq[Staff]
+    goods*: seq[Good]
+    cashes*: seq[Cash]
 
 proc getData(fileName: string): seq[string] =
   ## Получает все не пустные строки из файла
@@ -26,34 +49,45 @@ proc genRandDate(
   ## Учтите, что для срока годности как минимум год должен быть другим.
   fmt"{rand(d):02}.{rand(m):02}.{rand(y)}"
 
+proc randName(): string =
+  var names = getData("src" / "female_names.txt")
+  names.insert(getData("src" / "male_names.txt"))
+  return names[rand(0..names.len)]
+
+
 proc genCSV(
     header: string = "",
     rows: seq[seq[string]] = @[@[""]],
     csvFileName: string = "default.csv"
   ) =
+  var file: File = open(csvFileName,fmWrite)
+  file.writeLine(header)
+  for item in rows:
+    file.writeLine(join(item.mapIt(join(@[""""""",it,"""""""])),","))
+  file.close()
   ## Вносит заголовок и строки в csvFileName
   ## если значения не переданы, то должны использоваться значения по умолчанию
 
 proc genStaff(csvFileName: string, rowsCount: int) =
   ## Функция генерации сотрудников
-  ## 
-  ## Для формирования CSV-заголовка используйте наименования атрибутов объекта Staff
-  ## Для записи данных рекомендуется реализовать функцию genCSV и использовать
-  ## её во всех трех генераторах
+  var rows: seq[seq[string]]
+  for i in 1 .. rowsCount:
+    rows.add(@[randName(),getData("src" / "last_names.txt")[rand(0..999)],genRandDate(),$Post.toSeq()[1 .. ^1][rand(0..4)]])
+  genCSV("firstName,lastName,birthDate,post",rows,csvFileName)
 
 proc genGoods(csvFileName: string, rowsCount: int) =
   ## Функция генерации товаров
-  ## 
-  ## Для формирования CSV-заголовка используйте наименования атрибутов объекта Good
-  ## Для записи данных рекомендуется реализовать функцию genCSV и использовать
-  ## её во всех трех генераторах
+  var rows: seq[seq[string]]
+  for i in 1 .. rowsCount:
+    rows.add(@[getData("src" / "good_titles.txt")[rand(0..99)],$rand(1..500),genRandDate(1..28,1..12,2024..2025),$rand(0..100),$rand(0..1000)])
+  genCSV("title,price,endDate,discount,count",rows,csvFileName) 
 
 proc genCashes(csvFileName: string, rowsCount: int) =
   ## Функция генерации касс
-  ## 
-  ## Для формирования CSV-заголовка используйте наименования атрибутов объекта Cash
-  ## Для записи данных рекомендуется реализовать функцию genCSV и использовать
-  ## её во всех трех генераторах
+  var rows: seq[seq[string]]
+  for i in 1 .. rowsCount:
+    rows.add(@[$i,$rand(0..1),$rand(1..5000)])
+  genCSV("number,free,totalCash",rows,csvFileName) 
 
 when isMainModule:
   var rowsCount = 0  # Сколько строк писать
